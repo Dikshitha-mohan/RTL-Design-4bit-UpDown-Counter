@@ -1,0 +1,63 @@
+`timescale 1ns/1ps
+
+module tb_up_down_counter;
+
+reg clk;
+reg rst;
+reg up_down;
+wire [3:0] count;
+
+// Instantiate DUT
+up_down_counter DUT(
+    .clk(clk),
+    .rst(rst),
+    .up_down(up_down),
+    .count(count)
+);
+
+// Clock Generation (10 ns period)
+always #5 clk = ~clk;
+
+initial begin
+    clk = 0;
+    rst = 1;
+    up_down = 1;
+
+    // Enable waveform dump
+    $dumpfile("wave.vcd");
+    $dumpvars(0, tb_up_down_counter);
+
+    // Hold reset
+    #12;
+    rst = 0;
+
+    $display("\n----- COUNT UP -----");
+
+    // Count Up
+    #60;
+
+    $display("\n----- COUNT DOWN -----");
+
+    up_down = 0;
+    #60;
+
+    $display("\n----- COUNT UP AGAIN -----");
+
+    up_down = 1;
+    #40;
+
+    $display("\nSimulation Finished");
+    $finish;
+end
+
+always @(posedge clk)
+begin
+    $display("Time=%0t | Reset=%b | Mode=%s | Count=%d (%b)",
+             $time,
+             rst,
+             up_down ? "UP  " : "DOWN",
+             count,
+             count);
+end
+
+endmodule
